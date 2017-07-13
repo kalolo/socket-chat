@@ -22,14 +22,15 @@ app.get('/send', function(req, res){
 });
 
 function addUsers(user) { 
-    usersArray.push(user);
+    var flag = usersArray.push(user);
+    console.log('[+] added user [' + user +']', usersArray, flag);
     return usersArray;
 }
 
 function removeUser(user) {
-    usersArray.splice(user, 1);
+    if ( usersArray.indexOf(user) > -1 ) usersArray.splice(usersArray.indexOf(user), 1);
+    console.log('[+] removed user [' + user +']', usersArray);
     return usersArray;
-
 }
 
 io.on('connection', function(socket) {
@@ -43,7 +44,7 @@ io.on('connection', function(socket) {
 
     socket.on('disconnect', function(){
         console.log('user disconnected', socket.username);
-        removeUser(socket.username);
+        io.emit('user-list', removeUser(socket.username));
     });
 
     socket.on('send-message', function(data){
@@ -59,5 +60,5 @@ io.on('connection', function(socket) {
 
 var port = process.env.PORT || 3000;
 http.listen(port, function(){
-    console.log('listening on *:3000');
+    console.log('listening on *:' + port);
 });

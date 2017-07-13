@@ -21,6 +21,7 @@
   $(function () {
     var socket = io(),
         username = null,
+        users = [],
         $usernames = $('select[name="select_username"]'),
         $messageContainer = $('#message-container');
 
@@ -28,14 +29,20 @@
             username = prompt("Username?");
         }
 
+
+
     socket.on('user-list', function(data){
+       console.log('[+] -- users-list', data);
        $usernames.empty();
        $.each(data, function(key, val){
            if ( val != username ) {
                $usernames.append($("<option></option>").attr("value", val).text(val));
-               $messageContainer.append('<div class="chat-window">From: '+val+'<ul id="'+val+'-messages"></ul></div><br />');
+               console.log( $('#'+val+'-chat-window').length );
+               if ( $('#'+val+'-chat-window').length < 1 )
+               $messageContainer.append('<div id="'+val+'-chat-window">From: '+val+'<ul id="'+val+'-messages"></ul></div><br />');
            }
        });
+
     });
 
 
