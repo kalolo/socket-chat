@@ -62,15 +62,15 @@
       return false;
     });
 
-    socket.on(username+'-message', function(data){
-      console.log(data, '#' + data.username +'-messages');
-      $('#' + data.username +'-messages').append($('<li>').text( data.username +'> '+ data.message ));
+    socket.on('read-messages', function(data){
+        console.log('read-messages', data);
+        $('#' + data.username +'-messages').append($('<li>').text( data.username +'> '+ data.message ));
     });
 
   });
 </script>
 <form id="newMessage" action="">
-  <select name="select_username"></select>
+  <strong>Message to:</strong><select name="select_username"></select>
   <input name="input_message" autocomplete="off" />
   <button>Send</button>
 </form>

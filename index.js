@@ -2,6 +2,8 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var usersArray = [];
+var socketUserMap = [];
+
 
 app.get('/', function(req, res){
     res.sendFile(__dirname + '/html/chat.html');
@@ -21,9 +23,10 @@ app.get('/send', function(req, res){
     res.sendFile(__dirname + '/html/test.html');
 });
 
-function addUsers(user) { 
+function addUsers(user, socket) { 
     var flag = usersArray.push(user);
     console.log('[+] added user [' + user +']', usersArray, flag);
+    socketUserMap[user] = socket.id;
     return usersArray;
 }
 
@@ -33,23 +36,29 @@ function removeUser(user) {
     return usersArray;
 }
 
+function getSocketId(user){
+    console.log('[+] getSocketId[' + user +']', socketUserMap.user, socketUserMap);
+    return socketUserMap[user];
+}
+
 io.on('connection', function(socket) {
 
+    console.log('Connected: ', socket.id);
+
     socket.on('connect-username', function(username){
-        console.log(username, usersArray);
+        console.log('[+] username: [' + socket.id +']',username, usersArray);
         socket.username = username;
-        console.log('[+] connect-username', socket.username);
-        io.emit('user-list', addUsers(socket.username));
+        io.emit('user-list', addUsers(socket.username, socket));
     })
 
     socket.on('disconnect', function(){
-        console.log('user disconnected', socket.username);
+        console.log('user disconnected [' + socket.id +']', socket.username);
         io.emit('user-list', removeUser(socket.username));
     });
 
     socket.on('send-message', function(data){
         console.log('Message from: '+socket.username+' :', data);
-        io.emit(data.to + '-message', {
+        io.sockets.connected[getSocketId(data.to)].emit('read-messages', {
             username: socket.username,
             message: data.msg
         });
