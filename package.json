@@ -6,6 +6,10 @@
         "express": "~4.15.2",
         "socket.io": "~2.0.3"
     },
+    "engines": {
+       "node": "v6.11.1",
+       "npm": "3.10.10"
+    },
     "scripts": {
         "start": "node index.js"
     }
