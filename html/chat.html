@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Chat</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      /*form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }*/
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+      .chat-window{width: 200px; height: 500px;}
+    </style>
+  </head>
+  <body>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<script type="text/javascript">
+  $(function () {
+    var socket = io(),
+        username = null,
+        $usernames = $('select[name="select_username"]'),
+        $messageContainer = $('#message-container');
+
+        if ( !username ) {
+            username = prompt("Username?");
+        }
+
+    socket.on('user-list', function(data){
+       $usernames.empty();
+       $.each(data, function(key, val){
+           if ( val != username ) {
+               $usernames.append($("<option></option>").attr("value", val).text(val));
+               $messageContainer.append('<div class="chat-window">From: '+val+'<ul id="'+val+'-messages"></ul></div><br />');
+           }
+       });
+    });
+
+
+
+    socket.emit('connect-username', username);
+    $('form').submit(function(){
+
+      var message = {
+          msg:  $('input[name="input_message"]').val(),
+          from: username,
+          to: $usernames.val()
+      };
+
+      socket.emit('send-message', message);
+      $('#' + message.to +'-messages').append($('<li>').text(message.from +'> '+ message.msg ));
+      $('input[name="input_message"]').val('');
+      return false;
+    });
+
+    socket.on(username+'-message', function(data){
+      console.log(data, '#' + data.username +'-messages');
+      $('#' + data.username +'-messages').append($('<li>').text( data.username +'> '+ data.message ));
+    });
+
+  });
+</script>
+<form id="newMessage" action="">
+  <select name="select_username"></select>
+  <input name="input_message" autocomplete="off" />
+  <button>Send</button>
+</form>
+
+  <div id="message-container"></div>
+
+  </body>
+</html>

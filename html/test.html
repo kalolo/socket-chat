@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Chat</title>
+    <style>
+      body { font: 13px Helvetica, Arial; }
+    </style>
+  </head>
+  <body>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<script type="text/javascript">
+  $(function () {
+    var socket = io(),
+        $usernames = $('#username');
+
+
+    socket.on('user-list', function(data){
+       console.log(data);
+       $usernames.empty();
+       $.each(data, function(key, val){
+           $usernames.append($("<option></option>").attr("value", val).text(val));
+       });
+
+
+    });
+
+    $('form').submit(function(){
+      var message = {
+          msg: $('#m').val(),
+          room: $usernames.val()
+      };
+      console.log(message);
+      socket.emit('send-message', message);
+      $('#m').val('');
+      return false;
+    });
+    
+  });
+</script>
+    <ul id="messages"></ul>
+    <form action="">
+      <select id="username" name="username"></select>
+      <input id="m" autocomplete="off" />
+      <button>Send</button>
+    </form>
+  </body>
+</html>
