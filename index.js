@@ -27,7 +27,7 @@ function addUsers(user) { 
 }
 
 function removeUser(user) {
-    usersArray.splize(user, 1);
+    usersArray.splice(user, 1);
     return usersArray;
 
 }
